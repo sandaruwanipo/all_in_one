@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" class="nipo-secure-pending">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INFORMATION DESK ROSTER - NIPO - Tiles Filter</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="importmap">{"imports":{"react":"https://esm.sh/react@18.2.0","react-dom":"https://esm.sh/react-dom@18.2.0","react-dom/client":"https://esm.sh/react-dom@18.2.0/client"}}</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#f7f5f0;--surface:#ffffff;--surface-2:#efebe4;--ink:#151515;--border:#e6ddd1;--accent:#0f2a1f;--live-info:#ff3b30;--live-lunch:#ff9500}
+.dark{--bg:#11110f;--surface:#1a1917;--surface-2:#25231f;--ink:#f3f0ea;--border:#2e2b27;--accent:#d9f0c7}
+*{font-family:"Space Grotesk",system-ui,sans-serif}.mono{font-family:"JetBrains Mono",monospace}
+.live-blink{animation:blink 1.2s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:0.6}}
+</style>
+<style>html.nipo-secure-pending body>*:not(#nipo-guard-overlay){visibility:hidden!important}</style></head>
+<body>
+<div id="root"></div>
+<script type="module">
+import React,{useState,useEffect} from 'react';
+import {createRoot} from 'react-dom/client';
+const firebaseConfig=(await import("../firebase-config.js")).firebaseConfig;
+function colomboDateStr(d){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
+const HOLIDAYS_2026={"2026-01-03":"Duruthu Poya","2026-01-15":"Thai Pongal","2026-02-01":"Navam Poya","2026-02-04":"Independence","2026-03-02":"Medin Poya","2026-03-20":"Eid al-Fitr","2026-04-01":"Bak Poya","2026-04-03":"Good Friday","2026-04-13":"New Year's Eve","2026-04-14":"Sinhala New Year","2026-05-01":"Labour & Vesak","2026-05-27":"Eid al-Adha","2026-06-29":"Poson Poya","2026-07-29":"Esala Poya","2026-08-26":"Prophet Birthday","2026-08-27":"Nikini Poya","2026-09-26":"Binara Poya","2026-10-25":"Vap Poya","2026-11-08":"Deepavali","2026-11-24":"Ill Poya","2026-12-23":"Unduvap Poya","2026-12-25":"Christmas"};
+let db=null,fb=null;
+async function initFB(){try{
+ const{initializeApp,getApp,getApps}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+ const{getAuth,onAuthStateChanged}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+ const{getFirestore,doc,setDoc,onSnapshot,getDoc}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+ const app=getApps().length?getApp():initializeApp(firebaseConfig),auth=getAuth(app);
+ const user=await new Promise(resolve=>{const u=onAuthStateChanged(auth,v=>{u();resolve(v)},()=>resolve(null))});
+ const _db=getFirestore(app);
+ window.__nipoRosterCanEdit=false;
+ if(user?.emailVerified){try{const profile=await getDoc(doc(_db,'officers',user.uid));window.__nipoRosterCanEdit=!!profile.data()?.approved&&['admin','roster_manager'].includes(profile.data().role)}catch(e){console.warn('Roster public read-only',e)}}
+ db=_db;fb={doc,setDoc,onSnapshot};return true;
+ }catch(e){console.warn('Roster sync unavailable',e);return false;}}
+
+const DEFAULT_NI=["THILINA PRABA.","THILINA SANDA.","THUSHARI","UPEKHA","ACHINI","AJITH","IROSHI","ISURI","JAYANTHA","KAVITH","NAYOMI","RAVIMINI"];
+function App(){
+ const [dark,setDark]=useState(()=>localStorage.getItem('nipo_dark')==='1');
+ const [officerPool,setOfficerPool]=useState([...DEFAULT_NI]);
+ const [newOfficerName,setNewOfficerName]=useState('');
+ const [year,setYear]=useState(2026);const [month,setMonth]=useState(9);
+ const [starters,setStarters]=useState({});const [swaps,setSwaps]=useState([]);const [lastUpdated,setLastUpdated]=useState(null);
+ const [isAdmin,setIsAdmin]=useState(false);const [showLogin,setShowLogin]=useState(false);const [cred,setCred]=useState({u:'',p:''});
+ const [selA,setSelA]=useState('');const [selB,setSelB]=useState('');const [poolType,setPoolType]=useState('lunch');const [filter,setFilter]=useState('ALL');
+ const [fbReady,setFbReady]=useState(false);const [toast,setToast]=useState(null);const [now,setNow]=useState(new Date());
+ useEffect(()=>{const i=setInterval(()=>setNow(new Date()),1000);return()=>clearInterval(i)},[]);
+ useEffect(()=>{document.documentElement.classList.toggle('dark',dark);localStorage.setItem('nipo_dark',dark?'1':'0')},[dark]);
+ useEffect(()=>{const saved=localStorage.getItem('nipo_perfect_final');if(saved){try{const d=JSON.parse(saved);if(d.officerPool)setOfficerPool(d.officerPool);else if(d.infoPool)setOfficerPool(d.infoPool);if(d.swaps)setSwaps(d.swaps);if(d.starters)setStarters(d.starters);if(d.lastUpdated)setLastUpdated(d.lastUpdated);}catch{}}},[]);
+ useEffect(()=>{(async()=>{const ok=await initFB();if(ok){setFbReady(true);setIsAdmin(!!window.__nipoRosterCanEdit);const r=fb.doc(db,"shared","roster");fb.onSnapshot(r,(snap)=>{const v=snap.exists()?snap.data():null;if(v){if(v.officerPool)setOfficerPool(v.officerPool);else if(v.infoPool)setOfficerPool(v.infoPool);if(v.swaps)setSwaps(v.swaps);if(v.starters)setStarters(v.starters);if(v.lastUpdated)setLastUpdated(v.lastUpdated);}});}})()},[]);
+ const saveAll=async(o)=>{const pool=o.officerPool??officerPool;const data={officerPool:pool,infoPool:pool,lunchPool:pool,swaps:o.swaps??swaps,starters:o.starters??starters,lastUpdated:o.lastUpdated??new Date().toISOString()};localStorage.setItem('nipo_perfect_final',JSON.stringify(data));if(fbReady&&db&&window.__nipoRosterCanEdit){try{await fb.setDoc(fb.doc(db,"shared","roster"),data,{merge:true});}catch(err){setToast("Roster save failed: "+err.message);setTimeout(()=>setToast(null),4000)}}};
+ 
+ const monthKey=`${year}-${String(month+1).padStart(2,'0')}`;
+ const nextMDate=new Date(year,month+1,1);
+ const nextMonthKey=`${nextMDate.getFullYear()}-${String(nextMDate.getMonth()+1).padStart(2,'0')}`;
+
+ const curStarter=starters[monthKey]||{info:officerPool[0],lunch:officerPool[0]};
+ const nextStarter=starters[nextMonthKey]||{info:officerPool[0],lunch:officerPool[0]};
+
+ const getRotated=(pool,starter)=>{if(!starter)return pool;const idx=pool.indexOf(starter);if(idx<=0)return pool;return[...pool.slice(idx),...pool.slice(0,idx)];};
+ const rotInfo=getRotated(officerPool,curStarter.info);const rotLunch=getRotated(officerPool,curStarter.lunch);
+ const allDays=[];let tmp=new Date(year,month,1);while(tmp.getMonth()===month){allDays.push(new Date(tmp));tmp.setDate(tmp.getDate()+1);}
+ const holidaysThisMonth=allDays.filter(dt=>HOLIDAYS_2026[colomboDateStr(dt)]).map(dt=>({date:dt,name:HOLIDAYS_2026[colomboDateStr(dt)]}));
+ const workingDays=allDays.filter(dt=>{const wd=dt.getDay();if(wd===0||wd===6)return false;if(HOLIDAYS_2026[colomboDateStr(dt)])return false;return true;});
+
+ // Generate extended working days array (20 days before and 20 days after today) for flexible swap selection
+ const generateMonthWorkingDays=(y,m)=>{
+  const mKey=`${y}-${String(m+1).padStart(2,'0')}`;
+  const mStarter=starters[mKey]||{info:officerPool[0],lunch:officerPool[0]};
+  const rI=getRotated(officerPool,mStarter.info);
+  const rL=getRotated(officerPool,mStarter.lunch);
+  const days=[];let dTmp=new Date(y,m,1);
+  while(dTmp.getMonth()===m){days.push(new Date(dTmp));dTmp.setDate(dTmp.getDate()+1);}
+  const wDays=days.filter(dt=>{const wd=dt.getDay();if(wd===0||wd===6)return false;if(HOLIDAYS_2026[colomboDateStr(dt)])return false;return true;});
+  const map={};
+  wDays.forEach((dt,i)=>{
+   const ds=colomboDateStr(dt);
+   map[ds]={info:rI[i%rI.length],lunch:rL[i%rL.length]};
+  });
+  return map;
+ };
+
+ const swapRangeDays=[];
+ for(let offset=-20;offset<=20;offset++){
+  const d=new Date(now);d.setDate(d.getDate()+offset);
+  const wd=d.getDay();
+  if(wd!==0&&wd!==6&&!HOLIDAYS_2026[colomboDateStr(d)]){
+   swapRangeDays.push(new Date(d));
+  }
+ }
+ const swapWorkingDays=swapRangeDays.sort((a,b)=>a-b);
+
+ // Compute mappings for swap options across relevant months
+ const mapMonthData={};
+ swapWorkingDays.forEach(dt=>{
+  const y=dt.getFullYear();const m=dt.getMonth();const mk=`${y}-${m}`;
+  if(!mapMonthData[mk])mapMonthData[mk]=generateMonthWorkingDays(y,m);
+ });
+ const swapOrig={};
+ swapWorkingDays.forEach(dt=>{
+  const ds=colomboDateStr(dt);
+  const y=dt.getFullYear();const m=dt.getMonth();const mk=`${y}-${m}`;
+  if(mapMonthData[mk]&&mapMonthData[mk][ds])swapOrig[ds]={...mapMonthData[mk][ds]};
+ });
+
+ const orig={};workingDays.forEach((dt,i)=>{const ds=colomboDateStr(dt);orig[ds]={info:rotInfo[i%rotInfo.length],lunch:rotLunch[i%rotLunch.length]};});
+ const fin={};Object.keys(orig).forEach(k=>{fin[k]={...orig[k]};});
+ const swappedDates=new Set();
+ swaps.filter(s=>s.monthKey===monthKey).forEach(s=>{
+  swappedDates.add(s.dateA);swappedDates.add(s.dateB);
+  if(fin[s.dateA]&&fin[s.dateB]){
+   if(s.type==='info'){const t=fin[s.dateA].info;fin[s.dateA].info=fin[s.dateB].info;fin[s.dateB].info=t;}
+   else{const t=fin[s.dateA].lunch;fin[s.dateA].lunch=fin[s.dateB].lunch;fin[s.dateB].lunch=t;}
+  }
+ });
+ const detail={};
+ swaps.filter(s=>s.monthKey===monthKey).forEach(s=>{
+  const add=(ds)=>{if(!fin[ds]||!orig[ds])return;if(fin[ds][s.type]===orig[ds][s.type])return;if(!detail[ds])detail[ds]={};detail[ds][s.type]={orig:orig[ds][s.type],curr:fin[ds][s.type]};};
+  add(s.dateA);add(s.dateB);
+ });
+ // Officer stats for tiles
+ const officerStats={};
+ officerPool.forEach(name=>{officerStats[name]={info:[],lunch:[],total:0};});
+ workingDays.forEach(dt=>{const ds=colomboDateStr(dt);const f=fin[ds];if(!f)return;if(officerStats[f.info]){officerStats[f.info].info.push(ds);officerStats[f.info].total++;}if(officerStats[f.lunch]){officerStats[f.lunch].lunch.push(ds);officerStats[f.lunch].total++;}});
+ const filtered=filter==='ALL'?workingDays:workingDays.filter(dt=>{const ds=colomboDateStr(dt);if(swappedDates.has(ds))return true;const f=fin[ds];return f&&(f.info===filter||f.lunch===filter);});
+ const hm=now.getHours()*60+now.getMinutes();const infoLive=hm>=8*60+45&&hm<=16*60;const lunchLive=hm>=12*60+30&&hm<=13*60;
+ const doSwap=()=>{if(!isAdmin){setToast('🔒 Admin only - Login first');setTimeout(()=>setToast(null),2500);return;}if(!selA||!selB||selA===selB){setToast('Select 2 different dates');setTimeout(()=>setToast(null),2500);return;}const offA=poolType==='info'?(fin[selA]?.info||swapOrig[selA]?.info):(fin[selA]?.lunch||swapOrig[selA]?.lunch);const offB=poolType==='info'?(fin[selB]?.info||swapOrig[selB]?.info):(fin[selB]?.lunch||swapOrig[selB]?.lunch);if(!offA||!offB){setToast('Must be working days');setTimeout(()=>setToast(null),2500);return;}const newS={id:`${Date.now()}`,dateA:selA,dateB:selB,type:poolType,officerA_before:offA,officerB_before:offB,monthKey,createdAt:new Date().toISOString()};const up=[...swaps,newS];setSwaps(up);saveAll({swaps:up,lastUpdated:new Date().toISOString()});setSelA('');setSelB('');setFilter('ALL');setToast(`✅ Swapped ${selA.slice(8)} ↔ ${selB.slice(8)} (${poolType}) - exact Colombo dates`);setTimeout(()=>setToast(null),4000);};
+ const movePerson=(idx,dir)=>{if(!isAdmin){setToast('🔒 Admin only');setTimeout(()=>setToast(null),2000);return;}const pool=[...officerPool];const newIdx=idx+dir;if(newIdx<0||newIdx>=pool.length)return;const[moved]=pool.splice(idx,1);pool.splice(newIdx,0,moved);setOfficerPool(pool);saveAll({officerPool:pool});};
+ const removePerson=(name)=>{if(!isAdmin){setToast('🔒 Admin only');setTimeout(()=>setToast(null),2000);return;}const up=officerPool.filter(n=>n!==name);setOfficerPool(up);saveAll({officerPool:up});setToast(`Removed ${name}`);setTimeout(()=>setToast(null),2000);};
+ const addPerson=()=>{if(!isAdmin){setToast('🔒 Admin only');setTimeout(()=>setToast(null),2000);return;}const name=newOfficerName.trim().toUpperCase();if(!name){setToast('Enter name');setTimeout(()=>setToast(null),2000);return;}if(officerPool.includes(name)){setToast('Exists');setTimeout(()=>setToast(null),2000);return;}const up=[...officerPool,name];setOfficerPool(up);saveAll({officerPool:up});setNewOfficerName('');setToast(`Added ${name}`);setTimeout(()=>setToast(null),2000);};
+ const months=["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+ return React.createElement('div',{className:`min-h-screen bg-[var(--bg)] text-[var(--ink)]`},
+  React.createElement('div',{className:`sticky top-0 z-40 border-b ${fbReady?'bg-emerald-500 text-white':'bg-amber-200 text-black'} px-4 py-2 flex justify-between mono text-[12px]`},
+   React.createElement('span',{},fbReady?'🔴 LIVE • Single Pool • Admin Locked':'LOCAL MODE'),
+   React.createElement('div',{className:'flex gap-2'},
+    React.createElement('button',{onClick:()=>setDark(!dark),className:'px-3 py-1 rounded-full bg-black/10 border text-[11px] mono uppercase'},dark?'☀️ Light':'🌙 Dark'),
+    !isAdmin?React.createElement('button',{onClick:()=>{setToast('Ask an administrator for roster editing permissions');setTimeout(()=>setToast(null),2200)},className:'px-3 py-1 bg-[var(--accent)] text-[var(--bg)] mono uppercase text-[11px] font-bold'},'Read-only access'):
+    React.createElement('div',{className:'flex gap-1'},
+     React.createElement('button',{onClick:()=>{saveAll({lastUpdated:new Date().toISOString()});setToast('✅ Saved Live');setTimeout(()=>setToast(null),2000);},className:'px-4 py-1 bg-white text-black mono uppercase text-[11px] font-bold rounded'},'Green Update ↗'),
+     React.createElement('button',{onClick:()=>setIsAdmin(false),className:'px-3 py-1 border mono text-[11px] uppercase bg-white/20'},'Logout')
+    )
+   )
+  ),
+  React.createElement('div',{className:'mx-auto max-w-[1280px] px-4 pt-6'},
+   React.createElement('div',{className:'bg-[var(--accent)] text-[var(--bg)] px-6 py-5 border border-[var(--border)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4'},
+    React.createElement('div',{},
+     React.createElement('h1',{className:'text-[32px] md:text-[48px] font-black uppercase leading-[0.9] tracking-[-0.02em]'},'Information Desk Roster'),
+     React.createElement('div',{className:'mt-2 flex flex-wrap items-center gap-3 mono text-[11px] uppercase tracking-widest opacity-80'},
+      React.createElement('span',{className:'flex items-center gap-2'},React.createElement('span',{className:'h-2 w-2 rounded-full bg-[#ff3b30] live-blink'}),'NIPO •  Live'),
+      React.createElement('span',{},`• ${new Date().toLocaleDateString('en-GB',{timeZone:'Asia/Colombo',day:'2-digit',month:'long',year:'numeric'})} • Colombo`),
+      React.createElement('span',{className:'hidden md:inline'},'• Single Pool • Admin Locked')
+     )
+    ),
+    React.createElement('div',{className:'text-right md:min-w-[220px]'},
+     React.createElement('div',{className:'mono text-[28px] md:text-[32px] font-bold leading-none tracking-tight'}, new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Colombo',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}).format(now)),
+     React.createElement('div',{className:'mono text-[11px] uppercase tracking-widest opacity-70 mt-1'},'Colombo Real Time'),
+     React.createElement('div',{className:`mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full border mono text-[11px] uppercase font-bold ${infoLive?'bg-emerald-400 text-black border-emerald-300 live-blink':'bg-white/10 text-white/60 border-white/20'}`},
+      React.createElement('span',{className:`h-2 w-2 rounded-full ${infoLive?'bg-black animate-pulse':'bg-white/40'}`}),
+      infoLive?`Information Desk: ON • ${now.getHours()>=12?'PM':'AM'} Shift`:'Information Desk: OFF'
+     ),
+     React.createElement('div',{className:'mono text-[10px] opacity-60 mt-1'}, infoLive?'08:45-16:00 • Desk is open':'Desk is closed • Opens 08:45')
+    )
+   )
+  ),
+  React.createElement('div',{className:'mx-auto max-w-[1280px] p-4 grid grid-cols-12 gap-6'},
+   React.createElement('div',{className:'col-span-12 lg:col-span-4 space-y-4'},
+    React.createElement('div',{className:'bg-[var(--surface)] border border-[var(--border)] p-4'},
+     React.createElement('div',{className:'flex justify-between'},
+      React.createElement('h3',{className:'mono text-[11px] uppercase opacity-60'},'Month Control'),
+      React.createElement('div',{className:'flex gap-1'},
+       React.createElement('button',{onClick:()=>{let m=new Date(year,month-1);setYear(m.getFullYear());setMonth(m.getMonth());},className:'h-7 w-7 border grid place-items-center'},'‹'),
+       React.createElement('button',{onClick:()=>{let m=new Date(year,month+1);setYear(m.getFullYear());setMonth(m.getMonth());},className:'h-7 w-7 border grid place-items-center'},'›')
+      )
+     ),
+     React.createElement('div',{className:'mt-2 text-[28px] font-bold'},`${months[month]} ${year}`),
+     
+     // Current Month Starters Setup
+     React.createElement('div',{className:'mt-3 border-t border-[var(--border)] pt-2'},
+      React.createElement('div',{className:'mono text-[10px] font-bold uppercase opacity-80 mb-1'},`THIS MONTH (${months[month]}) STARTERS`),
+      React.createElement('div',{className:'grid grid-cols-2 gap-2'},
+       React.createElement('div',{},
+        React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Info Starter'),
+        React.createElement('select',{value:curStarter.info,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[monthKey]:{...curStarter,info:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'i-'+o,value:o},o)))
+       ),
+       React.createElement('div',{},
+        React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Lunch Starter'),
+        React.createElement('select',{value:curStarter.lunch,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[monthKey]:{...curStarter,lunch:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'l-'+o,value:o},o)))
+       )
+      )
+     ),
+
+     // Next Month Starters Setup (Admin functionality)
+     React.createElement('div',{className:'mt-3 border-t border-[var(--border)] pt-2'},
+      React.createElement('div',{className:'mono text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 mb-1'},`NEXT MONTH (${months[nextMDate.getMonth()]}) STARTERS (ADMIN)`),
+      React.createElement('div',{className:'grid grid-cols-2 gap-2'},
+       React.createElement('div',{},
+        React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Next Info Starter'),
+        React.createElement('select',{value:nextStarter.info,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[nextMonthKey]:{...nextStarter,info:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'ni-'+o,value:o},o)))
+       ),
+       React.createElement('div',{},
+        React.createElement('label',{className:'mono text-[10px] uppercase opacity-60'},'Next Lunch Starter'),
+        React.createElement('select',{value:nextStarter.lunch,disabled:!isAdmin,onChange:e=>{if(!isAdmin)return;const ns={...starters,[nextMonthKey]:{...nextStarter,lunch:e.target.value}};setStarters(ns);saveAll({starters:ns});},className:`mt-1 w-full bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] ${!isAdmin?'opacity-50':''}`},officerPool.map(o=>React.createElement('option',{key:'nl-'+o,value:o},o)))
+       )
+      )
+     ),
+
+     !isAdmin&&React.createElement('div',{className:'mt-2 mono text-[10px] opacity-50'},'🔒 Login to change current & next month starters'),
+     React.createElement('div',{className:'mt-3 mono text-[11px] opacity-60'},`${workingDays.length} working days • ${holidaysThisMonth.length} holidays excluded`),
+     holidaysThisMonth.length>0&&React.createElement('div',{className:'mt-2 bg-amber-50 border border-amber-200 p-2 mono text-[10px]'},holidaysThisMonth.map(h=>React.createElement('div',{key:colomboDateStr(h.date)},`${colomboDateStr(h.date)} - ${h.name}`)))
+    ),
+    React.createElement('div',{className:'bg-[var(--surface)] border border-[var(--border)] p-4'},
+     React.createElement('div',{className:'flex justify-between'},React.createElement('h4',{className:'mono text-[11px] uppercase opacity-60'},`Officer Pool • ${officerPool.length} • Single pool for both`),React.createElement('span',{className:'mono text-[9px] px-2 py-0.5 bg-[var(--surface-2)] border rounded-full'},isAdmin?'Admin':'🔒 View')),
+     isAdmin&&React.createElement('div',{className:'mt-3 flex gap-2'},React.createElement('input',{value:newOfficerName,onChange:e=>setNewOfficerName(e.target.value),placeholder:'Add NAME',className:'flex-1 bg-[var(--surface-2)] border px-2 py-2 mono text-[12px] uppercase',onKeyDown:e=>{if(e.key==='Enter')addPerson();}}),React.createElement('button',{onClick:()=>addPerson(),className:'px-4 bg-[var(--accent)] text-[var(--bg)] mono text-[11px] uppercase font-bold'},'Add')),
+     React.createElement('div',{className:'mt-3 max-h-[260px] overflow-auto space-y-1'},
+      officerPool.map((name,idx)=>React.createElement('div',{key:name,className:'group flex justify-between items-center px-2 py-1.5 hover:bg-[var(--surface-2)]'},
+       React.createElement('div',{className:'flex items-center gap-2'},React.createElement('span',{className:'mono text-[10px] opacity-40 w-6'},String(idx+1).padStart(2,'0')),React.createElement('span',{className:'mono text-[12px]'},name)),
+       isAdmin?React.createElement('div',{className:'flex gap-1'},React.createElement('button',{onClick:()=>movePerson(idx,-1),className:'h-5 w-5 border grid place-items-center mono text-[10px]'},'↑'),React.createElement('button',{onClick:()=>movePerson(idx,1),className:'h-5 w-5 border grid place-items-center mono text-[10px]'},'↓'),React.createElement('button',{onClick:()=>removePerson(name),className:'h-5 w-5 bg-red-50 text-red-600 border mono text-[10px]'},'✕')):null
+      ))
+     )
+    ),
+    isAdmin?React.createElement('div',{className:'bg-[var(--accent)] text-[var(--bg)] p-4'},
+     React.createElement('h3',{className:'mono text-[12px] uppercase font-semibold'},'Swap - ADMIN ONLY (-20d to +20d)'),
+     React.createElement('div',{className:'mt-3 grid grid-cols-2 gap-2'},
+      React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date A'),React.createElement('select',{value:selA,onChange:e=>setSelA(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),swapWorkingDays.map(dt=>{const ds=colomboDateStr(dt);const infoVal=fin[ds]?.info||swapOrig[ds]?.info||'';const lunchVal=fin[ds]?.lunch||swapOrig[ds]?.lunch||'';return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${infoVal}/${lunchVal}`)}))),
+      React.createElement('div',{},React.createElement('label',{className:'mono text-[10px] uppercase opacity-70'},'Date B'),React.createElement('select',{value:selB,onChange:e=>setSelB(e.target.value),className:'mt-1 w-full bg-white/10 border border-white/20 px-2 py-2 mono text-[12px] text-white'},React.createElement('option',{value:'',className:'text-black'},'Select'),swapWorkingDays.map(dt=>{const ds=colomboDateStr(dt);const infoVal=fin[ds]?.info||swapOrig[ds]?.info||'';const lunchVal=fin[ds]?.lunch||swapOrig[ds]?.lunch||'';return React.createElement('option',{key:ds,value:ds,className:'text-black'},`${ds} ${infoVal}/${lunchVal}`)})))
+     ),
+     React.createElement('div',{className:'mt-2 flex gap-2'},['info','lunch'].map(t=>React.createElement('button',{key:t,onClick:()=>setPoolType(t),className:`flex-1 py-2 mono text-[11px] uppercase border ${poolType===t?'bg-white text-black':'border-white/30 text-white/70'}`},t))),
+     React.createElement('button',{onClick:doSwap,className:'mt-3 w-full bg-white text-black py-2.5 mono text-[12px] uppercase font-bold'},'Create Swap'),
+     swaps.filter(s=>s.monthKey===monthKey).length>0&&React.createElement('div',{className:'mt-3 border-t border-white/15 pt-2'},React.createElement('div',{className:'flex justify-between mono text-[10px] uppercase opacity-60'},React.createElement('span',{},`${swaps.filter(s=>s.monthKey===monthKey).length} swaps`),React.createElement('button',{onClick:()=>{const up=swaps.filter(s=>s.monthKey!==monthKey);setSwaps(up);saveAll({swaps:up});}},'Clear this month')),swaps.filter(s=>s.monthKey===monthKey).map(s=>React.createElement('div',{key:s.id,className:'flex justify-between bg-white/10 px-2 py-1 mono text-[10px] mt-1'},React.createElement('span',{},`${s.dateA} ↔ ${s.dateB} ${s.type} ${s.officerA_before}↔${s.officerB_before}`),React.createElement('button',{onClick:()=>{const up=swaps.filter(x=>x.id!==s.id);setSwaps(up);saveAll({swaps:up});}},'✕'))))
+    ):React.createElement('div',{className:'bg-[var(--surface)] border border-dashed p-6 text-center'},
+     React.createElement('div',{className:'mono text-[12px] uppercase opacity-60'},'🔒 Admin Only'),
+     React.createElement('p',{className:'mono text-[11px] opacity-50 mt-1'},'Swap is admin only'),
+     React.createElement('button',{onClick:()=>setShowLogin(true),className:'mt-3 px-4 py-2 bg-[var(--accent)] text-[var(--bg)] mono text-[11px] uppercase font-bold'},'Login')
+    )
+   ),
+   React.createElement('div',{className:'col-span-12 lg:col-span-8 space-y-4'},
+    // Small name tiles filter - minimal
+    React.createElement('div',{className:'bg-[var(--surface)] border border-[var(--border)] px-4 py-3'},
+     React.createElement('div',{className:'flex flex-wrap items-center gap-2'},
+      React.createElement('span',{className:'mono text-[10px] uppercase tracking-widest opacity-60 mr-1'},'Filter by officer:'),
+      React.createElement('button',{onClick:()=>setFilter('ALL'),className:`px-3 py-1.5 mono text-[11px] uppercase font-bold border transition ${filter==='ALL'?'bg-[var(--accent)] text-[var(--bg)] border-[var(--accent)]':'bg-[var(--surface-2)] border-[var(--border)] hover:border-[var(--ink)]'}`},'All'),
+      officerPool.map(name=>{
+       const isActive=filter===name;
+       return React.createElement('button',{key:name,onClick:()=>setFilter(isActive?'ALL':name),className:`px-3 py-1.5 mono text-[11px] uppercase border transition ${isActive?'bg-[var(--accent)] text-[var(--bg)] border-[var(--accent)] shadow-sm':'bg-white dark:bg-[var(--surface-2)] border-[var(--border)] hover:bg-[var(--surface-2)] hover:border-[var(--ink)]'}`},name);
+      })
+     ),
+     filter!=='ALL'&&React.createElement('div',{className:'mt-2 mono text-[11px] opacity-70'},`Showing ${filtered.length} days for ${filter} • `,React.createElement('button',{onClick:()=>setFilter('ALL'),className:'underline'},'Clear filter'))
+    ),
+    React.createElement('div',{id:'roster-table',className:'bg-[var(--surface)] border border-[var(--border)] overflow-hidden'},
+     React.createElement('div',{className:'flex justify-between px-4 py-4 border-b bg-[var(--surface-2)]'},
+      React.createElement('h2',{className:'mono text-[13px] uppercase font-semibold flex items-center gap-2'},React.createElement('span',{className:'h-2 w-2 rounded-full bg-[#ff3b30] live-blink'}),filter==='ALL'?`Information Desk Roster • ${months[month]} ${year} • Colombo Fixed`:`${filter} • ${filtered.length} days • Colombo Fixed`),
+      React.createElement('span',{className:'mono text-[11px] opacity-50'},`${filtered.length} days`)
+     ),
+     React.createElement('div',{className:'overflow-auto'},
+      React.createElement('table',{className:'w-full'},
+       React.createElement('thead',{className:'bg-[var(--surface-2)] border-b'},React.createElement('tr',{className:'mono text-[11px] uppercase'},React.createElement('th',{className:'text-left px-4 py-3'},'Date'),React.createElement('th',{className:'text-left px-2 py-3'},'Day'),React.createElement('th',{className:'text-left px-4 py-3'},'Information'),React.createElement('th',{className:'text-left px-4 py-3'},'Lunch'))),
+       React.createElement('tbody',{},
+        filtered.map(dt=>{const ds=colomboDateStr(dt);const f=fin[ds];const isSwapped=swappedDates.has(ds);const today=colomboDateStr(new Date())===ds;const isInfoLive=today&&infoLive;const isLunchLive=today&&lunchLive;return React.createElement('tr',{key:ds,className:`border-b border-[var(--border)] ${today?'bg-red-50 dark:bg-red-950/30':''} ${isSwapped?'!bg-[#fff7d6] dark:!bg-amber-900/30':''} ${filter!=='ALL'&&(f.info===filter||f.lunch===filter)?'bg-emerald-50/50':''}`},
+         React.createElement('td',{className:'px-4 py-3 mono text-[13px] font-medium'},ds.slice(8)+' '+dt.toLocaleDateString('en-GB',{month:'short'})),
+         React.createElement('td',{className:'px-2 py-3 mono text-[11px] uppercase'},dt.toLocaleDateString('en-US',{weekday:'short'})),
+         React.createElement('td',{className:`px-4 py-3 relative ${isInfoLive?'bg-red-100/70 dark:bg-red-950/60':''}`},
+          isInfoLive&&React.createElement('span',{className:'absolute left-0 top-0 bottom-0 w-[3px] bg-[#ff3b30] live-blink'}),
+          React.createElement('div',{className:'flex items-center gap-2'},React.createElement('span',{className:`mono text-[13px] font-semibold ${isInfoLive?'text-[#ff3b30]':''} ${filter===f.info?'bg-[var(--accent)] text-[var(--bg)] px-1':''}`},f?.info||'-'),isInfoLive&&React.createElement('span',{className:'px-1.5 py-0.5 rounded-full bg-[#ff3b30] text-white text-[9px] mono uppercase live-blink'},'Live Info')),
+          detail[ds]&&detail[ds].info&&React.createElement('div',{className:'mt-1 inline-flex bg-amber-100 border border-amber-200 px-2 py-0.5 mono text-[10px] text-black'},`${detail[ds].info.curr} may cover ${detail[ds].info.orig}`)
+         ),
+         React.createElement('td',{className:`px-4 py-3 relative ${isLunchLive?'bg-orange-50 dark:bg-orange-950/40':''}`},
+          isLunchLive&&React.createElement('span',{className:'absolute left-0 top-0 bottom-0 w-[3px] bg-[#ff9500] live-blink'}),
+          React.createElement('div',{className:'flex items-center gap-2'},React.createElement('span',{className:`mono text-[13px] ${isLunchLive?'text-[#ff9500] font-semibold':''} ${filter===f.lunch?'bg-amber-200 text-black px-1':''}`},f?.lunch||'-'),isLunchLive&&React.createElement('span',{className:'px-1.5 py-0.5 rounded-full bg-[#ff9500] text-white text-[9px] mono uppercase live-blink'},'Live Lunch')),
+          detail[ds]&&detail[ds].lunch&&React.createElement('div',{className:'mt-1 inline-flex bg-orange-100 border border-orange-200 px-2 py-0.5 mono text-[10px] text-black'},`${detail[ds].lunch.curr} may cover ${detail[ds].lunch.orig}`)
+         )
+        );})
+       )
+      )
+     )
+    )
+   )
+  ),
+  showLogin&&React.createElement('div',{className:'fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50'},
+   React.createElement('div',{className:'bg-[var(--surface)] border p-6 w-full max-w-[360px]'},
+    React.createElement('h3',{className:'mono text-[14px] uppercase font-semibold'},'Admin Login'),
+    React.createElement('input',{value:cred.u,onChange:e=>setCred({...cred,u:e.target.value}),placeholder:'Username',className:'mt-4 w-full bg-[var(--surface-2)] border px-3 py-2 mono text-[13px]'}),
+    React.createElement('input',{value:cred.p,onChange:e=>setCred({...cred,p:e.target.value}),type:'password',placeholder:'Password',className:'mt-3 w-full bg-[var(--surface-2)] border px-3 py-2 mono text-[13px]'}),
+    React.createElement('div',{className:'mt-4 flex gap-2'},
+     React.createElement('button',{onClick:()=>{if(false){setIsAdmin(true);setShowLogin(false);setCred({u:'',p:''});}else{setToast('Invalid');setTimeout(()=>setToast(null),2000);}},className:'flex-1 bg-[var(--accent)] text-[var(--bg)] py-2 mono uppercase text-[12px]'},'Login'),
+     React.createElement('button',{onClick:()=>setShowLogin(false),className:'px-4 border mono uppercase text-[12px]'},'Cancel')
+    )
+   )
+  ),
+  toast&&React.createElement('div',{className:'fixed bottom-4 left-1/2 -translate-x-1/2 bg-[#151515] text-white px-4 py-2.5 rounded-full mono text-[12px] z-50'},toast)
+ );
+}
+createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

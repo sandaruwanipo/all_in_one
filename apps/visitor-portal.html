@@ -1,0 +1,168 @@
+<!doctype html><html lang="en" class="nipo-secure-pending"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NIPO | Visitor Portal</title><style>
+:root{--navy:#142b46;--gold:#c59a4d;--ink:#203247;--muted:#66778b;--line:#e7ebf0;--bg:#f7f9fc}
+*{box-sizing:border-box}body{margin:0;font:15px/1.55 'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--bg)}
+button,input,select{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}
+.topline{background:#10253d;color:#d6e1ed;padding:8px max(24px,calc((100vw - 1160px)/2));font-size:12px;display:flex;justify-content:space-between;gap:15px}
+header{background:white;border-bottom:1px solid var(--line)}
+.headerin{max-width:1160px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:21px 20px}
+.brand{display:flex;gap:14px;align-items:center}.seal{width:52px;height:52px;display:grid;place-items:center;background:var(--navy);color:#f1d69c;border-radius:14px;font:bold 17px Georgia,serif}
+.brand h1{font:700 21px/1.2 Georgia,serif;margin:0;color:var(--navy)}.brand p{font-size:12px;color:var(--muted);margin:4px 0 0}
+.headerlinks{display:flex;gap:16px;align-items:center;font-size:13px;color:#51657b}.headerlinks a:hover{color:#a2752e}
+nav{background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.navin{max-width:1160px;margin:auto;display:flex;gap:5px;overflow-x:auto;padding:9px 20px}
+.nav{border:0;background:transparent;border-radius:9px;padding:10px 15px;white-space:nowrap;font-size:13px;font-weight:650;color:#56697d}
+.nav:hover{background:#f1f4f8}.nav.active{background:var(--navy);color:white}
+main{max-width:1160px;margin:0 auto;padding:30px 20px 65px}.section{display:none}.section.active{display:block}
+.hero{border-radius:22px;background:linear-gradient(110deg,#122b47,#28506f);padding:43px 44px;color:white;display:flex;justify-content:space-between;align-items:center;gap:24px;overflow:hidden}
+.kicker{font-size:11px;font-weight:800;letter-spacing:2px;color:#efcf89;text-transform:uppercase}
+.hero h2{font:700 clamp(28px,4vw,42px)/1.16 Georgia,serif;margin:12px 0 15px;max-width:650px}
+.hero p{color:#d9e3ee;max-width:610px;margin:0}.hero-art{font:900 145px Georgia,serif;color:#ffffff13;line-height:1}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.btn{background:var(--navy);color:white;border:0;border-radius:10px;padding:12px 17px;font-weight:700;font-size:13px}
+.btn:hover{background:#294c70}.btn.gold{background:#e1b65f;color:#1b2a3c}.btn.secondary{background:#edf2f7;color:var(--navy)}.btn.outline{background:white;color:var(--navy);border:1px solid #d8e0e8}
+.section-label{font-size:11px;font-weight:800;color:#9a742e;text-transform:uppercase;letter-spacing:1.5px;margin:31px 0 7px}
+.section-title{font:700 27px Georgia,serif;color:var(--navy);margin:0 0 9px}.lead{color:var(--muted);margin:0 0 24px;max-width:760px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.card{border:1px solid var(--line);border-radius:17px;background:white;padding:25px;box-shadow:0 5px 22px #142b4607;display:flex;flex-direction:column}
+.card:hover{border-color:#d7c19b;box-shadow:0 9px 26px #142b4611}
+.tileicon{width:49px;height:49px;border-radius:13px;background:#f8f1e5;color:#a17731;display:grid;place-items:center;font-size:23px}
+.card h3{font-size:17px;color:var(--navy);margin:16px 0 7px}.card p{font-size:13px;color:var(--muted);margin:0 0 20px;flex:1}.card .btn{align-self:flex-start}
+.panel{background:white;border:1px solid var(--line);border-radius:17px;padding:28px;margin-bottom:18px}
+.panel h3{margin:0 0 15px;color:var(--navy);font-size:18px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:19px}
+.field{width:100%;padding:13px 14px;border:1px solid #d5dee8;border-radius:10px;background:white;outline:none;color:var(--ink)}
+.field:focus{border-color:var(--gold);box-shadow:0 0 0 3px #c59a4d25}
+.label{display:block;font-weight:700;font-size:13px;margin:0 0 8px}
+.formrow{display:flex;gap:10px}.formrow .field{flex:1;min-width:0}
+.notice{border-left:3px solid var(--gold);background:#fcf8f0;border-radius:8px;padding:14px 16px;color:#725a30;font-size:13px;margin:18px 0}
+.result{background:#f1f5f9;padding:16px;border-radius:10px;margin-top:15px}.result.ok{background:#e9f6ef;color:#216345}.result.warn{background:#fff4e3;color:#85581a}.result.bad{background:#fcebec;color:#9c3741}
+.chips,.linkline{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid #dbe3ec;background:white;border-radius:22px;padding:9px 15px;font-size:13px;color:#52657a;font-weight:700}
+.chip.active{background:var(--navy);color:white;border-color:var(--navy)}
+.classes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.classcard{background:white;border:1px solid var(--line);border-radius:12px;padding:18px}.classcard strong{font-size:22px;color:var(--navy)}.classcard span{float:right;color:#a27b37;font-size:11px;text-transform:uppercase}.classcard p{font-size:13px;color:var(--muted);margin:8px 0 0}
+.steps{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.step{background:white;border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;gap:13px}
+.stepnum{width:32px;height:32px;flex:none;border-radius:50%;background:#f5ead6;display:grid;place-items:center;font-weight:800;color:#806027}
+.step h3{margin:0 0 5px;font-size:14px}.step p{margin:0;color:var(--muted);font-size:13px}
+.linkline a{border:1px solid var(--line);background:white;padding:11px 14px;border-radius:9px;font-size:13px;font-weight:700}
+.checkitem{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.checkitem input{accent-color:var(--navy)}
+.feegrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.amount{font-size:35px;font-weight:800;color:var(--navy)}.fine,.mini{font-size:12px;color:var(--muted)}
+.table{width:100%;border-collapse:collapse;font-size:13px}.table th,.table td{padding:12px;border-bottom:1px solid var(--line);text-align:left}.table th{background:#f6f8fa}.table td:last-child{text-align:right;font-weight:700}
+.foot{font-size:12px;color:#8190a0;margin-top:25px}.searchbar{display:flex;gap:10px;margin:20px 0}.searchbar .field{max-width:540px}
+footer{text-align:center;padding:26px 20px;border-top:1px solid var(--line);font-size:12px;color:#7c8a9a}
+@media(max-width:850px){.grid,.classes{grid-template-columns:repeat(2,1fr)}.headerlinks{display:none}}
+@media(max-width:620px){.topline{padding:8px 16px}.topline span:last-child{display:none}.headerin{padding:17px}.brand h1{font-size:17px}.brand p{font-size:11px}main{padding:18px 14px 45px}.hero{padding:28px 23px}.hero-art{display:none}.grid,.classes,.steps,.feegrid{grid-template-columns:1fr}.section-head{display:block}.formrow{flex-wrap:wrap}.formrow .btn{width:100%}.panel{padding:19px}.navin{padding:8px 12px}}
+@media print{nav,.topline,.hero-actions,.btn{display:none!important}.section{display:none!important}.section.active{display:block!important}}
+</style><style>html.nipo-secure-pending body>*:not(#nipo-guard-overlay){visibility:hidden!important}</style></head><body>
+<div class="topline"><span>National Intellectual Property Office · Sri Lanka</span><span>Visitor Information Portal · Prototype</span></div>
+<header><div class="headerin"><div class="brand"><div class="seal">NIPO</div><div><h1>National Intellectual Property Office</h1><p>Trademark Division · Visitor Services Portal</p></div></div><div class="headerlinks"><a href="https://www.nipo.gov.lk/" target="_blank" rel="noopener">Official website ↗</a><a href="https://nipo.lk.wipo.net/" target="_blank" rel="noopener">Trademark search ↗</a></div></div></header>
+<nav aria-label="Main navigation"><div class="navin"><button class="nav active" data-page="home">Home</button><button class="nav " data-page="scan">File check</button><button class="nav " data-page="checklist">Documents</button><button class="nav " data-page="nice">Nice classes</button><button class="nav " data-page="fees">Fees</button><button class="nav " data-page="search">Search guide</button><button class="nav " data-page="process">Process</button><button class="nav " data-page="hours">Visit NIPO</button></div></nav><main><section id="home" class="section active">
+<div class="hero"><div><div class="kicker">Welcome to NIPO · Sri Lanka</div><h2>Trademark services, made simpler.</h2><p>Find what you need in just a few clicks. Check a file, prepare an application, understand fees, or explore trademark classifications.</p><div class="hero-actions"><button class="btn gold" data-go="scan">Check scanned file</button><button class="btn outline" data-go="search">Search guidance</button></div></div><div class="hero-art">™</div></div>
+<div class="section-label">How can we help?</div><h2 class="section-title">Choose a service</h2><p class="lead">Start with the task you want to complete. Each section provides clear steps and useful links.</p>
+<div class="grid">
+<article class="card"><div class="tileicon">⌕</div><h3>Check a scanned file</h3><p>Enter an application number to check whether it appears in the digital scan index.</p><button class="btn secondary" data-go="scan">Check file</button></article>
+<article class="card"><div class="tileicon">✎</div><h3>Prepare an application</h3><p>See which forms and supporting documents you may need before filing.</p><button class="btn secondary" data-go="checklist">View checklist</button></article>
+<article class="card"><div class="tileicon">▦</div><h3>Find your Nice class</h3><p>Browse all 45 goods and services classes using a simple search.</p><button class="btn secondary" data-go="nice">Browse classes</button></article>
+<article class="card"><div class="tileicon">₨</div><h3>Estimate fees</h3><p>See indicative application and publication fees from the supplied schedule.</p><button class="btn secondary" data-go="fees">Calculate fees</button></article>
+<article class="card"><div class="tileicon">↗</div><h3>Search trademarks</h3><p>Learn how to search existing trademarks before submitting your application.</p><button class="btn secondary" data-go="search">Start guide</button></article>
+<article class="card"><div class="tileicon">☷</div><h3>Understand the process</h3><p>Follow the main stages from filing and examination through registration.</p><button class="btn secondary" data-go="process">View steps</button></article>
+</div><div class="notice" style="margin-top:25px">This is a visitor information prototype. Official procedures, fees and requirements should be verified with NIPO before publication.</div></section><section id="scan" class="section"><div class="crumb">Portal / Digital file index</div><h2 class="page-title">Scanned file status</h2><p class="lead">Check whether a file number appears in the published TM.csv scan index. This is not an application-status or registration-status search.</p><div class="panel"><div class="section-head"><h3>File lookup</h3><span id="csvBadge" class="mini">Loading CSV index…</span></div><label class="label" for="scanInput">Trademark application / file number</label><div class="formrow"><input id="scanInput" class="field" placeholder="Enter exact file number"><button id="scanBtn" class="btn">Check file</button></div><div id="scanResult" class="result" aria-live="polite">Enter a file number to begin.</div><div class="notice">A missing entry means only that the number was not found in the available CSV index. It does not establish that a physical file is missing or that an application is invalid.</div></div></section>
+<section id="search" class="section"><div class="crumb">Portal / Pre-filing guidance</div><h2 class="page-title">Trademark search guide</h2><p class="lead">A practical checklist for preliminary clearance before filing a new trademark application.</p><div class="panel"><h3>Official research resources</h3><div class="linkline"><a target="_blank" rel="noopener" href="https://nipo.lk.wipo.net/">NIPO trademark database ↗</a><a target="_blank" rel="noopener" href="https://branddb.wipo.int/">WIPO Global Brand Database ↗</a><a target="_blank" rel="noopener" href="https://webaccess.wipo.int/mgs/">WIPO MGS ↗</a><a target="_blank" rel="noopener" href="https://www.nipo.gov.lk/">NIPO official website ↗</a></div></div><div class="steps" id="searchSteps"></div><div class="notice">Preliminary searches are indicative. A mark is not guaranteed registrable merely because no identical record is found; similarity, distinctiveness and other statutory requirements remain relevant.</div></section>
+<section id="process" class="section"><div class="crumb">Portal / Procedures</div><h2 class="page-title">Trademark registration pathway</h2><p class="lead">An accessible, text-based overview of the process described in the supplied portal.</p><div class="steps" id="processSteps"></div><div class="notice">This simplified sequence is for visitor guidance and does not replace statutory procedures, applicable notices or official instructions.</div></section>
+<section id="nice" class="section"><div class="crumb">Portal / Classification</div><h2 class="page-title">Nice classification explorer</h2><p class="lead">Browse 45 classes: goods in Classes 1–34 and services in Classes 35–45. Descriptions below are abbreviated reference summaries from the supplied portal.</p><div class="panel"><div class="section-head"><div><h3>Find a class</h3><div class="mini">Search class number or description</div></div><a class="btn gold" target="_blank" rel="noopener" href="https://webaccess.wipo.int/mgs/">Open WIPO MGS ↗</a></div><input id="niceSearch" class="field" placeholder="e.g. 25, clothing, software, consulting"><div class="chips" style="margin-top:17px"><button class="chip active" data-filter="all">All 45</button><button class="chip" data-filter="goods">Goods · 1–34</button><button class="chip" data-filter="services">Services · 35–45</button></div><div id="niceCount" class="mini" style="margin-bottom:12px"></div><div id="niceGrid" class="classes"></div></div></section>
+<section id="checklist" class="section"><div class="crumb">Portal / Filing preparation</div><h2 class="page-title">Document checklists</h2><p class="lead">Choose a procedure and mark off items as you prepare the submission.</p><div class="panel"><div class="chips"><button class="chip active" data-check="m01">Form M 01</button><button class="chip" data-check="m03">Form M 03 / Assignment</button><button class="chip" data-check="cr_deposit">Copyright deposit</button></div><div class="section-head"><h3 id="checkTitle"></h3><button class="btn secondary" onclick="window.print()">Print checklist</button></div><div id="checkItems"></div><div class="notice">Document requirements in this prototype reproduce the supplied portal and should be confirmed against current NIPO instructions.</div></div></section>
+<section id="fees" class="section"><div class="crumb">Portal / Fee information</div><h2 class="page-title">Fee estimator</h2><p class="lead">Explore indicative charges from the rates listed in your uploaded portal. All figures must be verified against the current official fee schedule.</p><div class="feegrid"><div class="panel"><h3>Calculate an estimate</h3><label class="label">Fee category</label><select id="feeMode" class="field"><option value="app">Trademark application</option><option value="pub">Gazette publication</option></select><div style="height:17px"></div><label id="feeChoiceLabel" class="label">Applicant category</label><select id="feeChoice" class="field"></select><div class="notice">Indicative amounts from the supplied source, which describes them as VAT-inclusive. No additional VAT is added.</div></div><div class="panel"><div class="eyebrow">Estimated amount payable</div><div id="feeTotal" class="amount">Rs. 0.00</div><p id="feeDescription" class="mini"></p><hr style="border:0;border-top:1px solid var(--line);margin:24px 0"><h3>Selected fee</h3><div class="formrow" style="justify-content:space-between"><span>Published source amount</span><strong id="feeBase"></strong></div><div class="formrow" style="justify-content:space-between;margin-top:10px"><span>Additional VAT</span><strong>Not added</strong></div></div></div><div class="panel"><h3>Other example fees from the supplied portal</h3><table class="table"><thead><tr><th>Service</th><th>Amount</th></tr></thead><tbody><tr><td>Trademark search</td><td>Rs. 177.00</td></tr><tr><td>Registration and certificate issuance</td><td>Rs. 2,360.00</td></tr><tr><td>Individual renewal</td><td>Rs. 7,080.00</td></tr><tr><td>Corporate renewal</td><td>Rs. 9,440.00</td></tr><tr><td>Notice of opposition</td><td>Rs. 4,720.00</td></tr></tbody></table></div></section>
+<section id="hours" class="section"><div class="crumb">Portal / Visitor information</div><h2 class="page-title">Counter & visitor information</h2><p class="lead">Plan your visit and access official information.</p><div class="grid"><div class="card"><div class="tileicon">◷</div><h3>Counter hours</h3><p>The source portal displays 9:00 AM – 3:00 PM. Confirm current service hours before visiting.</p></div><div class="card"><div class="tileicon">⌂</div><h3>Official website</h3><p>For office announcements, forms, notices and contact information.</p><a class="btn" style="display:block;text-align:center" target="_blank" rel="noopener" href="https://www.nipo.gov.lk/">Visit NIPO ↗</a></div><div class="card"><div class="tileicon">▦</div><h3>Classification support</h3><p>Use the WIPO Madrid Goods & Services Manager for detailed terms.</p><button class="btn secondary" data-go="nice">Browse classes</button></div></div></section>
+<div class="foot">NIPO Trademark Division Visitor Portal · Interface prototype · Not an official live NIPO service</div></main><footer>National Intellectual Property Office · Sri Lanka &nbsp;|&nbsp; Information-only prototype</footer><span id="dateNow" hidden></span><span id="timeNow" hidden></span><script>
+const niceClassesData=[
+            {num: 1, type: "goods", title: "Chemicals for industry, science, agriculture, horticulture and forestry."},
+            {num: 2, type: "goods", title: "Paints, varnishes, lacquers, preservatives against rust and wood deterioration."},
+            {num: 3, type: "goods", title: "Cosmetics, perfumery, essential oils, non-medicated soaps, cleaning preparations."},
+            {num: 4, type: "goods", title: "Industrial oils and greases, wax, candles and wicks for lighting."},
+            {num: 5, type: "goods", title: "Pharmaceuticals, medical and veterinary preparations, dietetic food."},
+            {num: 6, type: "goods", title: "Common metals and their alloys, ores, metal building materials."},
+            {num: 7, type: "goods", title: "Machines, machine tools, power-operated tools, motors and engines."},
+            {num: 8, type: "goods", title: "Hand tools and implements, cutlery, side arms, razors."},
+            {num: 9, type: "goods", title: "Scientific, research, optical, weighing, measuring, signaling, checking, life-saving apparatus; computers and computer software."},
+            {num: 10, type: "goods", title: "Surgical, medical, dental and veterinary apparatus and instruments."},
+            {num: 11, type: "goods", title: "Apparatus and installations for lighting, heating, cooling, steam generating, cooking."},
+            {num: 12, type: "goods", title: "Vehicles; apparatus for locomotion by land, air or water."},
+            {num: 13, type: "goods", title: "Firearms; ammunition and projectiles; explosives; fireworks."},
+            {num: 14, type: "goods", title: "Precious metals and their alloys; jewellery, precious and semi-precious stones; horological instruments."},
+            {num: 15, type: "goods", title: "Musical instruments."},
+            {num: 16, type: "goods", title: "Paper and cardboard; printed matter; bookbinding material; photographs; stationery and office requisites."},
+            {num: 17, type: "goods", title: "Unprocessed and semi-processed rubber, gutta-percha, gum, asbestos, mica."},
+            {num: 18, type: "goods", title: "Leather and imitations of leather; animal skins and hides; trunks and travelling bags; umbrellas."},
+            {num: 19, type: "goods", title: "Building materials (non-metallic); non-metallic rigid pipes for building; asphalt, pitch."},
+            {num: 20, type: "goods", title: "Furniture, mirrors, picture frames; unworked or semi-worked bone, horn, ivory."},
+            {num: 21, type: "goods", title: "Household or kitchen utensils and containers; cookware and tableware; combs and sponges."},
+            {num: 22, type: "goods", title: "Ropes and string; nets; tents and awnings; sails; sacks and bags."},
+            {num: 23, type: "goods", title: "Yarns and threads for textile use."},
+            {num: 24, type: "goods", title: "Textiles and substitutes for textiles; bed linen; table linen."},
+            {num: 25, type: "goods", title: "Clothing, footwear, headwear."},
+            {num: 26, type: "goods", title: "Lace and embroidery, ribbons and braid; buttons, hooks and eyes, pins."},
+            {num: 27, type: "goods", title: "Carpets, rugs, mats and matting, linoleum and other materials for covering floors."},
+            {num: 28, type: "goods", title: "Games, toys and playthings; video game apparatus; gymnastic and sporting articles."},
+            {num: 29, type: "goods", title: "Meat, fish, poultry and game; meat extracts; preserved, frozen, dried and cooked fruits and vegetables."},
+            {num: 30, type: "goods", title: "Coffee, tea, cocoa and artificial coffee; rice; flour and preparations made from cereals; bread, pastries and confectionery; edible ices; sugar, honey, yeast, salt, mustard, vinegar, sauces, spices."},
+            {num: 31, type: "goods", title: "Raw and unprocessed agricultural, aquacultural, horticultural and forestry products."},
+            {num: 32, type: "goods", title: "Beers; non-alcoholic beverages; mineral and aerated waters; fruit beverages and fruit juices; syrups."},
+            {num: 33, type: "goods", title: "Alcoholic beverages (except beers)."},
+            {num: 34, type: "goods", title: "Tobacco; smokers' articles; matches."},
+            {num: 35, type: "services", title: "Advertising; business management; business administration; office functions."},
+            {num: 36, type: "services", title: "Insurance; financial affairs; monetary affairs; real estate affairs."},
+            {num: 37, type: "services", title: "Building construction; repair; installation services."},
+            {num: 38, type: "services", title: "Telecommunications."},
+            {num: 39, type: "services", title: "Transport; packaging and storage of goods; travel arrangement."},
+            {num: 40, type: "services", title: "Treatment of materials; recycling of waste; air purification and water treatment."},
+            {num: 41, type: "services", title: "Education; providing of training; entertainment; sporting and cultural activities."},
+            {num: 42, type: "services", title: "Scientific and technological services and research; industrial analysis; design and development of computer hardware and software."},
+            {num: 43, type: "services", title: "Services for providing food and drink; temporary accommodation."},
+            {num: 44, type: "services", title: "Medical services; veterinary services; hygienic and beauty care for human beings or animals."},
+            {num: 45, type: "services", title: "Legal services; security services for the physical protection of tangible property and individuals."}
+        ];
+const checklistsData={
+            m01: {
+                title: "Form M 01 - Application for Registration of Trademark",
+                items: [
+                    "Duly filled and signed Form M 01 (Trademark Application Form).",
+                    "6 clear specimens / representations of the trademark (Max size: 10 cm x 10 cm).",
+                    "Power of Attorney (POA) if filed through an authorized IP Agent or Attorney.",
+                    "Certified translation and transliteration if the mark contains non-English, Sinhala, or Tamil characters.",
+                    "Priority document (if claiming priority under Paris Convention within 6 months of foreign filing)."
+                ]
+            },
+            m03: {
+                title: "Form M 03 / Assignments & Change of Name/Address",
+                items: [
+                    "Duly completed Form M 03 request letter.",
+                    "Certified copy of Certificate of Change of Name / Business Registration.",
+                    "Original Trademark Certificate or certified duplicate copy.",
+                    "Assignment deed executed by assignor and assignee (for transfers/transmissions).",
+                    "Applicable NIPO fee receipt."
+                ]
+            },
+            cr_deposit: {
+                title: "Copyright Voluntary Work Deposit Checklist",
+                items: [
+                    "Completed Copyright Deposit application form.",
+                    "Two identical copies of the work (Manuscript, software CD/source, artwork, or audio recording).",
+                    "Proof of authorship / Declaration of ownership signed by author(s).",
+                    "National Identity Card (NIC) or passport copy of the applicant.",
+                    "Applicable voluntary deposit fee receipt."
+                ]
+            }
+        };
+const csvUrl='https://raw.githubusercontent.com/sandaruwanipo/nipo-visitor-portal/refs/heads/main/TM.csv';
+const $=id=>document.getElementById(id);
+function go(page){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===page));document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===page));window.scrollTo({top:0,behavior:'smooth'});}
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+function tick(){const d=new Date();$('dateNow').textContent=d.toLocaleDateString('en-LK',{weekday:'short',day:'numeric',month:'short',year:'numeric'});$('timeNow').textContent=d.toLocaleTimeString('en-LK');}tick();setInterval(tick,1000);
+const searchSteps=[['Identify the mark','List the words, visual elements and other distinctive components.'],['Identify the Nice class','Determine which goods and services the mark will cover.'],['Search national and international records','Check NIPO and WIPO resources, including related classes.'],['Review similar marks','Consider spelling, sound, appearance and overall similarity.'],['Check market use','Review business directories, websites and relevant social media.'],['Assess the findings','Evaluate possible conflicts; seek professional advice where appropriate.']];
+const processSteps=[['Prepare the application','Identify the applicant, mark representation, class and goods or services.'],['File and pay prescribed fees','Submit the relevant form and supporting documents.'],['Formality examination','The office reviews formal filing requirements.'],['Substantive examination','The mark is examined under applicable legal requirements.'],['Acceptance and publication','Accepted applications proceed to publication under the prescribed procedure.'],['Opposition or further proceedings','Opposition or refusal procedures may arise, depending on the case.'],['Registration and certificate','Complete applicable registration formalities after the required stages.'],['Renewal','Maintain protection by renewing in accordance with the law.']];
+function renderSteps(id,data){$(id).innerHTML=data.map((x,i)=>`<div class="step"><div class="stepnum">${i+1}</div><div><h3>${x[0]}</h3><p>${x[1]}</p></div></div>`).join('');}renderSteps('searchSteps',searchSteps);renderSteps('processSteps',processSteps);
+let niceFilter='all';function renderNice(){const q=$('niceSearch').value.trim().toLowerCase();const data=niceClassesData.filter(c=>(niceFilter==='all'||c.type===niceFilter)&&(String(c.num).includes(q)||c.title.toLowerCase().includes(q)));$('niceCount').textContent=`Showing ${data.length} of ${niceClassesData.length} classes`;$('niceGrid').innerHTML=data.map(c=>`<div class="classcard"><strong>${String(c.num).padStart(2,'0')}</strong><span>${c.type}</span><p>${c.title}</p></div>`).join('')||'<p>No matching class found. Try another keyword.</p>';}$('niceSearch').addEventListener('input',renderNice);document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{niceFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderNice()}));renderNice();
+function renderChecklist(key){const c=checklistsData[key];$('checkTitle').textContent=c.title;$('checkItems').innerHTML=c.items.map((t,i)=>`<div class="checkitem"><input id="item${i}" type="checkbox"><label for="item${i}"></label></div>`).join('');[...$('checkItems').querySelectorAll('label')].forEach((label,i)=>label.textContent=c.items[i]);document.querySelectorAll('[data-check]').forEach(b=>b.classList.toggle('active',b.dataset.check===key));}document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>renderChecklist(b.dataset.check)));renderChecklist('m01');
+const fees={app:[['Individual applicant',2360],['Corporate / company',7080],['Collective / certification mark',11800]],pub:[['0–10 words · up to 4×4 cm',2000],['0–10 words · over 4×4 cm',2500],['11–20 words · up to 4×4 cm',3000],['11–20 words · over 4×4 cm',3500],['Over 20 words · up to 4×4 cm',4000],['Over 20 words · over 4×4 cm',5500]]};function renderFeeOptions(){const mode=$('feeMode').value;$('feeChoiceLabel').textContent=mode==='app'?'Applicant category':'Publication criteria';$('feeChoice').innerHTML=fees[mode].map((x,i)=>`<option value="${i}">${x[0]}</option>`).join('');updateFee();}function updateFee(){const [label,amt]=fees[$('feeMode').value][Number($('feeChoice').value)];const f='Rs. '+amt.toLocaleString('en-LK',{minimumFractionDigits:2,maximumFractionDigits:2});$('feeTotal').textContent=f;$('feeBase').textContent=f;$('feeDescription').textContent=label+' · source rate, subject to verification';}$('feeMode').addEventListener('change',renderFeeOptions);$('feeChoice').addEventListener('change',updateFee);renderFeeOptions();
+let scanned=null;async function loadCsv(){try{const r=await fetch(csvUrl,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const txt=await r.text();const lines=txt.replace(/^\uFEFF/,'').split(/\r?\n/);scanned=new Set(lines.map(line=>{let v=line.trim();if(v.startsWith('"'))v=v.slice(1).split('"')[0].replace(/""/g,'"');else v=v.split(',')[0];return v.trim().toLowerCase();}).filter(Boolean));$('csvBadge').textContent=`${scanned.size.toLocaleString()} indexed entries loaded`;}catch(e){scanned=null;$('csvBadge').textContent='Index unavailable · network access required';}}function scanCheck(){const val=$('scanInput').value.trim().toLowerCase();const el=$('scanResult');el.className='result';if(!val){el.textContent='Please enter a file number.';el.classList.add('warn');return}if(!scanned){el.textContent='The CSV index could not be loaded. Please check your internet connection or GitHub source.';el.classList.add('warn');return}if(scanned.has(val)){el.textContent='This number appears in the published digital scan index.';el.classList.add('ok')}else{el.textContent='No matching entry was found in the currently loaded scan index.';el.classList.add('bad')}}$('scanBtn').addEventListener('click',scanCheck);$('scanInput').addEventListener('keydown',e=>{if(e.key==='Enter')scanCheck()});loadCsv();
+</script></body></html>
