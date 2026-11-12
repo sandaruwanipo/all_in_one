@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function officerPath() { return /databases/$(database)/documents/officers/$(request.auth.uid); }
+    function officerApproved() {
+      return signedIn() && request.auth.token.email_verified == true
+        && exists(officerPath()) && get(officerPath()).data.approved == true;
+    }
+    function hasRole(role) { return officerApproved() && get(officerPath()).data.role == role; }
+    function giEditor() { return hasRole('admin') || hasRole('gi_manager'); }
+    function rosterEditor() { return hasRole('admin') || hasRole('roster_manager'); }
+
+    match /officers/{uid} {
+      // New signups can request an officer account but cannot approve themselves.
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['displayName','email','role','approved','createdAt'])
+        && request.resource.data.approved == false
+        && request.resource.data.role == 'officer'
+        && request.resource.data.email == request.auth.token.email;
+      allow read: if signedIn() && request.auth.uid == uid;
+      // Administrator approval and role changes must be made in the Firebase Console
+      // or a trusted server using administrative credentials.
+      allow update, delete: if false;
+    }
+
+    match /shared/giRegister {
+      allow read: if true;
+      allow create, update: if giEditor()
+        && request.resource.data.records is list;
+      allow delete: if false;
+    }
+    match /shared/roster {
+      allow read: if true;
+      allow create, update: if rosterEditor()
+        && request.resource.data.officerPool is list;
+      allow delete: if false;
+    }
+    match /officer_workspaces/{uid} {
+      allow read: if officerApproved() && request.auth.uid == uid;
+      allow create, update: if officerApproved() && request.auth.uid == uid
+        && request.resource.data.tasks is map
+        && request.resource.data.hours is map
+        && request.resource.data.leaves is map;
+      allow delete: if false;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
