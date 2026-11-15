@@ -4,8 +4,8 @@
 </style></head><body><div class="topline"><span>National Intellectual Property Office · Sri Lanka</span><span>Digital Services Portal · Demonstration</span></div>
 <header class="header"><div class="headerinner"><a href="./index.html" class="logo"><div class="seal">NIPO</div><div><strong>NIPO Digital Workspace</strong><small>Information, examination and office utilities</small></div></a><button class="menuToggle" id="menuToggle" aria-label="Toggle menu">☰</button><nav class="links" id="links"><a href="#services">Services</a><a href="#scan">Scanned file lookup</a><a href="https://www.nipo.gov.lk/" target="_blank" rel="noopener">Official NIPO website ↗</a></nav></div></header>
 <main class="container"><section id="landing"><div class="hero"><div><span class="eyebrow">Welcome to the digital workspace</span><h1>One portal. Every essential NIPO service.</h1><p>Open trademark examination tools, GI information, duty rosters and registration resources directly—no account required to browse public services.</p><div class="actions"><a class="primary" href="#services">Explore services →</a><a class="outline" href="#scan">Check file number ↗</a></div></div><div class="heroart"><span><b>45</b><small>Nice classes</small></span><span><b>GI</b><small>Register</small></span><span><b>TM</b><small>File lookup</small></span><span><b>✓</b><small>My tasks</small></span></div></div>
-<div class="heading" id="services"><div><h2>Explore services</h2><p>Choose a service below. ACT opens in a new tab; only Tasks & Schedules requires an officer account.</p></div><span class="tag">Public services · Personal planner</span></div><div class="grid" id="cards"></div>
-<div class="utility" id="scan"><div class="panel"><span class="eyebrow" style="color:#a07836">Quick utility</span><h3>Scanned file number checker</h3><p>Enter a trademark application number to check whether it appears in the published TM.csv dataset. No Excel upload required.</p><div class="lookup"><input id="number" aria-label="Application number" placeholder="e.g. 278594 or LK-T-1-278594"><button id="check">Check file</button></div><div class="result" id="result" aria-live="polite">Enter a number to search.</div><div class="note">ⓘ <span>A matching number indicates presence in the published list only; it does not confirm the current file status.</span></div></div><div class="panel"><span class="eyebrow" style="color:#a07836">How to use the portal</span><h3>Public tools at your fingertips.</h3><p>Open a service card to work within this website, or select full screen for a larger view. No registration is needed to browse these tools.</p><div class="privacy"><span class="lock">🌐</span><div><strong>Open access</strong><small>Class Checker, GI Register, Information Roster, Visitor Portal and Registration Portal open without account creation. Saved records and restricted editing remain protected by database permissions.</small></div></div></div></div></section>
+<div class="heading" id="services"><div><h2>Explore services</h2><p>Choose a service below. Public services open in a new tab; only Tasks & Schedules requires an officer account.</p></div><span class="tag">Public services · Personal planner</span></div><div class="grid" id="cards"></div>
+<div class="utility" id="scan"><div class="panel"><span class="eyebrow" style="color:#a07836">Quick utility</span><h3>Scanned file number checker</h3><p>Enter a trademark application number to check whether it appears in the published TM.csv dataset. No Excel upload required.</p><div class="lookup"><input id="number" aria-label="Application number" placeholder="e.g. 278594 or LK-T-1-278594"><button id="check">Check file</button></div><div class="result" id="result" aria-live="polite">Enter a number to search.</div><div class="note">ⓘ <span>A matching number indicates presence in the published list only; it does not confirm the current file status.</span></div></div><div class="panel"><span class="eyebrow" style="color:#a07836">How to use the portal</span><h3>Public tools at your fingertips.</h3><p>Open a service card to launch the application in a separate tab. No portal login is required to browse public tools.</p><div class="privacy"><span class="lock">🌐</span><div><strong>Open access</strong><small>Class Checker, GI Register, Information Roster, Visitor Portal and Registration Portal open without account creation. Saved records and restricted editing remain protected by database permissions.</small></div></div></div></div></section>
 <section class="preview" id="preview"><div class="previewtop"><div><strong id="previewTitle">Service preview</strong><p>Embedded application · Open full screen for more space</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="closePreview">← All services</button><a id="fullLink" class="previewlink" target="_blank" rel="noopener" style="align-self:center">Full screen ↗</a></div></div><div id="previewError" role="alert" style="display:none;background:#fff2e9;color:#834422;border:1px solid #edccb4;padding:14px;border-radius:10px;margin:12px 0;font-size:13px"></div><iframe id="appFrame" title="NIPO service preview"></iframe></section>
 <footer class="footer"><span>NIPO Digital Workspace · Independent prototype for review. Not an official NIPO publication.</span><span>Public access does not authorize editing protected records.</span></footer></main>
 <script>
@@ -22,26 +22,17 @@ const apps=[
 ['todo','🔒','Tasks & Schedules','Personal to-do list, calendar and leave planner. An account is required only here.','officer-login.html']
 ];
 const cards=document.getElementById('cards'),preview=document.getElementById('preview'),landing=document.getElementById('landing');
-cards.innerHTML=apps.map(([id,ico,title,desc,file])=>`<button class="tile ${id==='todo'?'private':''}" data-id="${id}"><span class="icon">${ico}</span><h3>${title}</h3><p>${desc}</p><span class="cta">${id==='desk'?'Coming soon':id==='todo'?'Sign up / Log in':id==='act'?'Open ACT website ↗':'Open service'} →</span></button>`).join('');
-async function openApp(id){
+cards.innerHTML=apps.map(([id,ico,title,desc,file])=>`<button class="tile ${id==='todo'?'private':''}" data-id="${id}"><span class="icon">${ico}</span><h3>${title}</h3><p>${desc}</p><span class="cta">${id==='desk'?'Coming soon':id==='todo'?'Sign up / Log in':id==='act'?'Open ACT website ↗':'Open service ↗'} →</span></button>`).join('');
+function openApp(id){
  const a=apps.find(x=>x[0]===id);
- if(!a||!a[4]){alert('The Information Desk Portal will be added when its HTML file is available.');return;}
- if(id==='todo'){location.href=a[4];return;}
- if(id==='act'){window.open(a[4], '_blank', 'noopener,noreferrer');return;}
- document.getElementById('previewTitle').textContent=a[2];
- activePreviewId=id;
- const error=document.getElementById('previewError');error.style.display='none';error.textContent='';
- const frame=document.getElementById('appFrame');frame.src=a[4];
- document.getElementById('fullLink').href=a[4];
- landing.style.display='none';preview.classList.add('active');window.scrollTo(0,0);
- // GitHub Pages returns a visible 404 document when an app is absent. Make the missing path clear.
- try{
-  const response=await fetch(a[4],{method:'HEAD',cache:'no-store'});
-  if(!response.ok && activePreviewId===id){
-   error.textContent='Application file unavailable (HTTP '+response.status+'): '+a[4]+'. Upload this exact HTML filename inside the apps folder of your GitHub repository.';
-   error.style.display='block';
-  }
- }catch(e){/* Offline previews may not support HEAD; the app still opens normally. */}
+ if(!a || !a[4]){alert('This service has not yet been configured.');return;}
+ // Navigate directly instead of embedding third-party pages in an iframe.
+ // Relative links resolve within the GitHub Pages repository.
+ if(id==='todo'){
+   window.location.assign(a[4]);
+ }else{
+   window.open(a[4], '_blank', 'noopener,noreferrer');
+ }
 }
 let activePreviewId='';
 
