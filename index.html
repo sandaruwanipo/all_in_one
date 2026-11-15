@@ -4,40 +4,36 @@
 </style></head><body><div class="topline"><span>National Intellectual Property Office · Sri Lanka</span><span>Digital Services Portal · Demonstration</span></div>
 <header class="header"><div class="headerinner"><a href="./index.html" class="logo"><div class="seal">NIPO</div><div><strong>NIPO Digital Workspace</strong><small>Information, examination and office utilities</small></div></a><button class="menuToggle" id="menuToggle" aria-label="Toggle menu">☰</button><nav class="links" id="links"><a href="#services">Services</a><a href="#scan">Scanned file lookup</a><a href="https://www.nipo.gov.lk/" target="_blank" rel="noopener">Official NIPO website ↗</a></nav></div></header>
 <main class="container"><section id="landing"><div class="hero"><div><span class="eyebrow">Welcome to the digital workspace</span><h1>One portal. Every essential NIPO service.</h1><p>Open trademark examination tools, GI information, duty rosters and registration resources directly—no account required to browse public services.</p><div class="actions"><a class="primary" href="#services">Explore services →</a><a class="outline" href="#scan">Check file number ↗</a></div></div><div class="heroart"><span><b>45</b><small>Nice classes</small></span><span><b>GI</b><small>Register</small></span><span><b>TM</b><small>File lookup</small></span><span><b>✓</b><small>My tasks</small></span></div></div>
-<div class="heading" id="services"><div><h2>Explore services</h2><p>Choose a service below. Public services open in a new tab; only Tasks & Schedules requires an officer account.</p></div><span class="tag">Public services · Personal planner</span></div><div class="grid" id="cards"></div>
-<div class="utility" id="scan"><div class="panel"><span class="eyebrow" style="color:#a07836">Quick utility</span><h3>Scanned file number checker</h3><p>Enter a trademark application number to check whether it appears in the published TM.csv dataset. No Excel upload required.</p><div class="lookup"><input id="number" aria-label="Application number" placeholder="e.g. 278594 or LK-T-1-278594"><button id="check">Check file</button></div><div class="result" id="result" aria-live="polite">Enter a number to search.</div><div class="note">ⓘ <span>A matching number indicates presence in the published list only; it does not confirm the current file status.</span></div></div><div class="panel"><span class="eyebrow" style="color:#a07836">How to use the portal</span><h3>Public tools at your fingertips.</h3><p>Open a service card to launch the application in a separate tab. No portal login is required to browse public tools.</p><div class="privacy"><span class="lock">🌐</span><div><strong>Open access</strong><small>Class Checker, GI Register, Information Roster, Visitor Portal and Registration Portal open without account creation. Saved records and restricted editing remain protected by database permissions.</small></div></div></div></div></section>
-<section class="preview" id="preview"><div class="previewtop"><div><strong id="previewTitle">Service preview</strong><p>Embedded application · Open full screen for more space</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="closePreview">← All services</button><a id="fullLink" class="previewlink" target="_blank" rel="noopener" style="align-self:center">Full screen ↗</a></div></div><div id="previewError" role="alert" style="display:none;background:#fff2e9;color:#834422;border:1px solid #edccb4;padding:14px;border-radius:10px;margin:12px 0;font-size:13px"></div><iframe id="appFrame" title="NIPO service preview"></iframe></section>
+<div class="heading" id="services"><div><h2>Explore services</h2><p>Choose a service below. Public tools open their own full pages; only Tasks & Schedules requires an officer account.</p></div><span class="tag">Public services · Personal planner</span></div><div class="grid" id="cards"></div>
+<div class="utility" id="scan"><div class="panel"><span class="eyebrow" style="color:#a07836">Quick utility</span><h3>Scanned file number checker</h3><p>Enter a trademark application number to check whether it appears in the published TM.csv dataset. No Excel upload required.</p><div class="lookup"><input id="number" aria-label="Application number" placeholder="e.g. 278594 or LK-T-1-278594"><button id="check">Check file</button></div><div class="result" id="result" aria-live="polite">Enter a number to search.</div><div class="note">ⓘ <span>A matching number indicates presence in the published list only; it does not confirm the current file status.</span></div></div><div class="panel"><span class="eyebrow" style="color:#a07836">How to use the portal</span><h3>Public tools at your fingertips.</h3><p>Open a service card to visit its full webpage directly. No registration is needed to browse these tools.</p><div class="privacy"><span class="lock">🌐</span><div><strong>Open access</strong><small>Class Checker, GI Register, Information Roster, Visitor Portal and Registration Portal open without account creation. Saved records and restricted editing remain protected by database permissions.</small></div></div></div></div></section>
+
 <footer class="footer"><span>NIPO Digital Workspace · Independent prototype for review. Not an official NIPO publication.</span><span>Public access does not authorize editing protected records.</span></footer></main>
 <script>
 // Public dashboard works standalone as an HTML preview; replace URL if the public CSV moves.
 const TM_CSV_URL = "https://raw.githubusercontent.com/sandaruwanipo/nipo-visitor-portal/refs/heads/main/TM.csv";
 const apps=[
-['class','⚖️','Class Checker','Check goods and services against Nice Classification.','apps/class-checker.html'],
-['gi','📜','GI Register','Browse the geographical indications register. Editing requires authorization.','apps/gi-register.html'],
-['roster','🗓️','Information Roster','View information desk duty assignments and live roster updates.','apps/information-roster.html'],
-['visitor','🏛️','Visitor Portal','Find filing guidance, document checklists and service information.','apps/visitor-portal.html'],
-['registration','📄','Registration Portal','Prepare and preview trademark registration certificates.','apps/registration-portal.html'],
+['class','⚖️','Class Checker','Check goods and services against Nice Classification.','https://sandaruwanipo.github.io/class_checker/'],
+['gi','📜','GI Register','Browse the geographical indications register. Editing requires authorization.','https://sandaruwanipo.github.io/GI/'],
+['roster','🗓️','Information Roster','View information desk duty assignments and live roster updates.','https://sandaruwanipo.github.io/info_roster/'],
+['visitor','🏛️','Visitor Portal','Find filing guidance, document checklists and service information.','https://sandaruwanipo.github.io/nipo-visitor-portal/'],
+['registration','📄','Registration Portal','Prepare and preview trademark registration certificates.','https://sandaruwanipo.github.io/registration/'],
 ['act','📚','ACT Web Portal','Access the ACT website using the external public webpage.','https://sandaruwanipo.github.io/act/'],
 ['desk','🛎️','Information Desk Portal','Reserved for the Information Desk HTML application.',''],
 ['todo','🔒','Tasks & Schedules','Personal to-do list, calendar and leave planner. An account is required only here.','officer-login.html']
 ];
-const cards=document.getElementById('cards'),preview=document.getElementById('preview'),landing=document.getElementById('landing');
-cards.innerHTML=apps.map(([id,ico,title,desc,file])=>`<button class="tile ${id==='todo'?'private':''}" data-id="${id}"><span class="icon">${ico}</span><h3>${title}</h3><p>${desc}</p><span class="cta">${id==='desk'?'Coming soon':id==='todo'?'Sign up / Log in':id==='act'?'Open ACT website ↗':'Open service ↗'} →</span></button>`).join('');
-function openApp(id){
- const a=apps.find(x=>x[0]===id);
- if(!a || !a[4]){alert('This service has not yet been configured.');return;}
- // Navigate directly instead of embedding third-party pages in an iframe.
- // Relative links resolve within the GitHub Pages repository.
- if(id==='todo'){
-   window.location.assign(a[4]);
- }else{
-   window.open(a[4], '_blank', 'noopener,noreferrer');
- }
-}
-let activePreviewId='';
-
-cards.querySelectorAll('button').forEach(b=>b.onclick=()=>openApp(b.dataset.id));
-document.getElementById('closePreview').onclick=()=>{activePreviewId='';document.getElementById('appFrame').src='about:blank';preview.classList.remove('active');landing.style.display='block';window.scrollTo(0,0)};
+const cards=document.getElementById('cards');
+// Public tools open as full standalone pages, like the ACT website.
+// No iframe or homepage authentication is used for public navigation.
+cards.innerHTML=apps.map(([id,ico,title,desc,file])=>{
+ const isReady=Boolean(file);
+ const url=id==='todo'?'officer-login.html':file;
+ const external=id!=='todo';
+ const label=id==='desk'?'Coming soon':id==='todo'?'Sign up / Log in':id==='act'?'Open ACT website ↗':'Open service ↗';
+ const body=`<span class="icon">${ico}</span><h3>${title}</h3><p>${desc}</p><span class="cta">${label}</span>`;
+ if(!isReady)return `<button type="button" class="tile" data-id="desk" aria-label="Information Desk Portal coming soon">${body}</button>`;
+ return `<a class="tile ${id==='todo'?'private':''}" data-id="${id}" href="${url}" ${external?'target="_blank" rel="noopener noreferrer"':''}>${body}</a>`;
+}).join('');
+cards.querySelector('[data-id="desk"]')?.addEventListener('click',()=>alert('The Information Desk Portal will be added when its HTML file is available.'));
 document.getElementById('menuToggle').onclick=()=>document.getElementById('links').classList.toggle('open');
 const norm=s=>String(s||'').trim().toUpperCase().replace(/\s+/g,'').replace(/^LK-T-1-/,'').replace(/^0+(?=\d)/,'');
 function col(line){if(line.startsWith('"')){let v='';for(let i=1;i<line.length;i++){if(line[i]==='"'){if(line[i+1]==='"'){v+='"';i++}else break}else v+=line[i]}return v}return line.split(',')[0]}
